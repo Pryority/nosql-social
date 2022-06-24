@@ -13,8 +13,22 @@ const UserSchema = new Schema({
     unique: true,
     trimmed: true
   },
-  thoughts: [],
-  friends: []
+  thoughts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Thought'
+    }
+  ],
+  friends: [],
+  toJSON: {
+    virtuals: true,
+  },
+  id: false
+});
+
+// get total count of comments and replies on retrieval
+UserSchema.virtual('thoughtCount').get(function () {
+  return this.thoughts.length;
 });
 
 const User = model('User', UserSchema);
