@@ -1,5 +1,48 @@
-// /api/comments/<pizzaId>
-router.route('/:pizzaId').post(addComment);
+const { User, Thought } = require('../models');
 
-// /api/comments/<pizzaId>/<commentId>
-router.route('/:pizzaId/:commentId').delete(removeComment);
+const thoughtController = {
+    addThought({ params, body }, res) {
+        console.log(body);
+        Thought.create(body)
+            .then(({ _id }) => {
+                return User.findOneAndUpdate(
+                    { _id: params.userId },
+                    { $push: { thoughts: _id } },
+                    { new: true }
+                );
+            })
+            .then(dbUserData => {
+                if (!dbUserData) {
+                    res.status(404).json({ message: 'No user found with this id!' });
+                    return;
+                }
+                res.json(dbUserData);
+            })
+            .catch(err => res.json(err));
+    },
+
+    // delete Thought
+    removeThought({ params }, res) {
+        Thought.findOneAndDelete({ _id: params.userId })
+            .then(deletedThought => {
+                if (!deletedThought) {
+                    return res.status(404).json({ message: 'No thought with this id!' });
+                }
+                return User.findOneAndUpdate(
+                    { _id: params.userId },
+                    { $pull: { thoughts: params.thoughtId } },
+                    { new: true }
+                );
+            })
+            .then(dbUserData => {
+                if (!dbUserData) {
+                    res.status(404).json({ message: 'No pizza found with this id!' });
+                    return;
+                }
+                res.json(dbUserData);
+            })
+            .catch(err => res.json(err));
+    }
+};
+
+module.exports = thoughtController;
