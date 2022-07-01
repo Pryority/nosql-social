@@ -6,20 +6,13 @@ const userController = {
       .populate({ path: 'thoughts', select: '-__v' })
       .populate({ path: "friends", select: "-__v" })
       .select('-__v')
-      // .sort({ _id: -1 })
       .then(dbUserData => res.json(dbUserData))
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(400);
-      });
+      .catch(err => res.sendStatus(400));
   },
-
   getUserById({ params }, res) {
     User.findOne({ _id: params.id })
-      .populate({
-        path: 'thoughts',
-        select: '-__v'
-      })
+      .populate({ path: 'thoughts', select: '-__v', populate: { path: 'reactions' } })
+      .populate({ path: 'friends', select: '-__v' })
       .select('-__v')
       .then(dbUserData => res.json(dbUserData))
       .catch(err => {
@@ -29,7 +22,7 @@ const userController = {
   },
 
   createUser({ body }, res) {
-    User.create(body)
+    User.create({ username: body.username, email: body.email })
       .then(dbUserData => res.json(dbUserData))
       .catch(err => res.json(err));
   },
