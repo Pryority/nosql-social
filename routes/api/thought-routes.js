@@ -1,10 +1,13 @@
 const router = require('express').Router();
-const { addThought, removeThought } = require('../../controllers/thought-controller')
+const { addThought,
+    removeThought,
+    addReaction,
+    removeReaction
+} = require('../../controllers/thought-controller')
 
-// /api/Thoughts/<pizzaId>
 router.route('/:userId').post(addThought);
-
-// /api/Thoughts/<pizzaId>/<ThoughtId>
-router.route('/:userId/:thoughtId').delete(removeThought);
+router.route('/:userId').delete(removeThought);
+router.route('/:userId/:thoughtId').post(addReaction);
+router.route('/:userId/:thoughtId').delete(removeReaction);
 
 module.exports = router;

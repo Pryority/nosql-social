@@ -1,60 +1,62 @@
-
 const { Schema, model, Types } = require('mongoose');
 const dateFormat = require('../utils/dateFormat');
-// const reactionSchema = require('./schema/reaction');
 
 const ReactionSchema = new Schema(
     {
+        // set custom id to avoid confusion with parent Thought _id
         reactionId: {
             type: Schema.Types.ObjectId,
             default: () => new Types.ObjectId()
         },
         reactionBody: {
-            type: String
+            type: String,
+            required: true,
+            maxLength: 280
+        },
+        username: {
+
         },
         createdAt: {
             type: Date,
             default: Date.now,
             get: createdAtVal => dateFormat(createdAtVal)
         }
+    },
+    {
+        toJSON: {
+            getters: true
+        }
     }
 );
 
 const ThoughtSchema = new Schema(
     {
-        thoughtId: {
-            type: Schema.Types.ObjectId,
-            default: () => new Types.ObjectId()
-        },
         thoughtText: {
             type: String,
             required: true,
-            minlength: 1,
-            maxlength: 280,
+            minLength: 0,
+            maxLength: 280
         },
         createdAt: {
             type: Date,
             default: Date.now,
             get: createdAtVal => dateFormat(createdAtVal)
         },
-        reactions: [ReactionSchema]
+        replies: [ReactionSchema]
     },
     {
         toJSON: {
             virtuals: true,
             getters: true
         },
-        // prevents virtuals from creating duplicate of _id as `id`
         id: false
     }
 );
 
-// get total count of comments and replies on retrieval
 ThoughtSchema.virtual('reactionCount').get(function () {
-    return this.reactions.length;
+    return this.replies.length;
 });
 
 const Thought = model('Thought', ThoughtSchema);
 
 module.exports = Thought;
-
