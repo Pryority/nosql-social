@@ -7,10 +7,14 @@ const thoughtController = {
             .select('-__v')
             .then(dbThoughtData => res.json(dbThoughtData))
             .catch((err) => res.status(400).json(err));
-    }
-
-
-    // add Thought to User
+    },
+    getThoughtById({ params }, res) {
+        Thought.findOne({ _id: params.id })
+            .populate({ path: 'reactions', select: '-__v' })
+            .select('-__v')
+            .then(dbThoughtData => res.json(dbThoughtData))
+            .catch((err) => res.status(400).json(err))
+    },
     createThought({ params, body }, res) {
         console.log(params);
         Thought.create(body)
@@ -31,8 +35,6 @@ const thoughtController = {
             })
             .catch(err => res.json(err));
     },
-
-    // add Reaction to Thought
     createReaction({ params, body }, res) {
         Thought.findOneAndUpdate(
             { _id: params.ThoughtId },
